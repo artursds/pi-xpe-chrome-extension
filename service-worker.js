@@ -12,12 +12,7 @@ const createCounter = async () => {
   await chrome.storage.local.set({ counter: 1 });
 };
 
-updateBlacklist();
-createCounter();
-
-chrome.runtime.onStartup.addListener(async () => updateBlacklist());
-
-chrome.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
+const checkCurrentUrl = async (tab) => {
   if (tab.status != "complete") return;
   const domain = new URL(tab.url).host;
   if (!blacklist.includes(domain)) return;
@@ -28,4 +23,15 @@ chrome.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
     url: `https://www.youtube.com/@primorico?${query}`,
   });
   await chrome.storage.local.set({ counter: counter + 1 });
-});
+};
+
+(async () => {
+  await updateBlacklist();
+  await createCounter();
+})();
+
+chrome.runtime.onStartup.addListener(async () => await updateBlacklist());
+
+chrome.tabs.onUpdated.addListener(
+  async (_tabId, _changeInfo, tab) => await checkCurrentUrl(tab)
+);
