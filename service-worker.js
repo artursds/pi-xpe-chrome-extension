@@ -23,8 +23,9 @@ chrome.tabs.onUpdated.addListener(async (_tabId, _changeInfo, tab) => {
   if (!blacklist.includes(domain)) return;
 
   const { counter } = await chrome.storage.local.get("counter");
+  const query = `counter=${counter}&domain=${domain}`;
   chrome.tabs.create({
-    url: `https://www.youtube.com/@primorico?counter=${counter}`,
+    url: `https://www.youtube.com/@primorico?${query}`,
   });
   await chrome.storage.local.set({ counter: counter + 1 });
 });
