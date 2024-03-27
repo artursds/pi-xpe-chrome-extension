@@ -12,12 +12,18 @@ const createCounter = async () => {
   await chrome.storage.local.set({ counter: 1 });
 };
 
+const getCounter = async () => {
+  const { counter } = await chrome.storage.local.get("counter");
+  await chrome.storage.local.set({ counter: counter + 1 });
+  return counter;
+};
+
 const checkCurrentUrl = async (tab) => {
   if (tab.status != "complete") return;
   const domain = new URL(tab.url).host;
   if (!blacklist.includes(domain)) return;
 
-  const { counter } = await chrome.storage.local.get("counter");
+  const counter = await getCounter();
   const query = `counter=${counter}&domain=${domain}`;
   chrome.tabs.create({
     url: `https://www.youtube.com/@primorico?${query}`,
