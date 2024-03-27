@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000";
+const API_URL = "https://pa-xpe-api.netlify.app/api";
 let blacklist = [];
 
 const updateBlacklist = async () => {
