@@ -1,9 +1,10 @@
+const API_URL = "http://localhost:8000";
 let blacklist = [];
 
 const updateBlacklist = async () => {
-  const response = await fetch("https://pokeapi.co/api/v2/item/");
-  const json = await response.json();
-  blacklist = json.results.map((item) => new URL(item.url).host);
+  const response = await fetch(`${API_URL}/blacklist`);
+  const content = await response.json();
+  blacklist = content.domains;
 };
 
 const createCounter = async () => {
@@ -26,9 +27,8 @@ const checkCurrentUrl = async (tab) => {
   const counter = await getCounter();
   const query = `counter=${counter}&domain=${domain}`;
   chrome.tabs.create({
-    url: `https://www.youtube.com/@primorico?${query}`,
+    url: `${API_URL}/financial-content?${query}`,
   });
-  await chrome.storage.local.set({ counter: counter + 1 });
 };
 
 (async () => {
