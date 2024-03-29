@@ -19,7 +19,7 @@ const getCounter = async () => {
   return counter;
 };
 
-const checkCurrentUrl = async (tab) => {
+const checkCurrentUrl = async (_tabId, _changeInfo, tab) => {
   if (tab.status != "complete") return;
   const domain = new URL(tab.url).host;
   if (!blacklist.includes(domain)) return;
@@ -36,8 +36,6 @@ const checkCurrentUrl = async (tab) => {
   await createCounter();
 })();
 
-chrome.runtime.onStartup.addListener(async () => await updateBlacklist());
+chrome.runtime.onStartup.addListener(updateBlacklist);
 
-chrome.tabs.onUpdated.addListener(
-  async (_tabId, _changeInfo, tab) => await checkCurrentUrl(tab)
-);
+chrome.tabs.onUpdated.addListener(checkCurrentUrl);
