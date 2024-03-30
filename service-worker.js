@@ -7,16 +7,26 @@ const updateBlacklist = async () => {
   blacklist = content.domains;
 };
 
-const createCounter = async () => {
-  const { counter } = await chrome.storage.local.get("counter");
-  if (counter) return;
-  await chrome.storage.local.set({ counter: 1 });
+const getAccessCounter = async () => {
+  let { accessCounter } = await chrome.storage.local.get("accessCounter");
+  return accessCounter;
 };
 
-const getCounter = async () => {
-  const { counter } = await chrome.storage.local.get("counter");
-  await chrome.storage.local.set({ counter: counter + 1 });
-  return counter;
+const setAccessCounter = async (accessCounter) => {
+  await chrome.storage.local.set({ accessCounter });
+};
+
+const createAccessCounter = async () => {
+  const accessCounter = await getAccessCounter();
+  if (accessCounter) return;
+  await setAccessCounter(1);
+};
+
+const nextAccessCounter = async () => {
+  let accessCounter = await getAccessCounter();
+  if (!accessCounter) accessCounter = 1;
+  await setAccessCounter(accessCounter + 1);
+  return accessCounter;
 };
 
 const getRecentDomains = async () => {
@@ -58,8 +68,11 @@ const checkCurrentUrl = async (_tabId, _changeInfo, tab) => {
   if (recentDomains[domain]) return;
   if (!blacklist.includes(domain)) return;
 
-  const [counter] = await Promise.all([getCounter(), addRecentDomain(domain)]);
-  const query = `counter=${counter}&domain=${domain}`;
+  const [accessCounter] = await Promise.all([
+    nextAccessCounter(),
+    addRecentDomain(domain),
+  ]);
+  const query = `counter=${accessCounter}&domain=${domain}`;
   chrome.tabs.create({
     url: `${API_URL}/financial-content?${query}`,
   });
@@ -67,7 +80,7 @@ const checkCurrentUrl = async (_tabId, _changeInfo, tab) => {
 
 (async () => {
   await updateBlacklist();
-  await createCounter();
+  await createAccessCounter();
 })();
 
 chrome.runtime.onStartup.addListener(updateBlacklist);
