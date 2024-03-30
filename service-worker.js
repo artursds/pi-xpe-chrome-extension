@@ -1,6 +1,5 @@
 const API_URL = "http://localhost:8000/api";
 let blacklist = [];
-let lastDomain;
 
 const updateBlacklist = async () => {
   const response = await fetch(`${API_URL}/blacklist`);
@@ -20,14 +19,46 @@ const getCounter = async () => {
   return counter;
 };
 
+const getRecentDomains = async () => {
+  let { recentDomains } = await chrome.storage.local.get("recentDomains");
+  if (!recentDomains) recentDomains = {};
+  return recentDomains;
+};
+
+const setRecentDomains = async (recentDomains) => {
+  await chrome.storage.local.set({ recentDomains });
+};
+
+const addRecentDomain = async (domain) => {
+  const recentDomains = await getRecentDomains();
+  recentDomains[domain] = new Date().getTime();
+  await setRecentDomains(recentDomains);
+};
+
+const dateIsLessThanADayAgo = (dateInMs) => {
+  const oneDayInMs = 24 * 60 * 60 * 1000;
+  const todayInMs = new Date().getTime();
+  return dateInMs + oneDayInMs < todayInMs;
+};
+
+const cleanRecentDomains = async () => {
+  const recentDomains = await getRecentDomains();
+  for (const domain in recentDomains) {
+    const domainInsertionDateInMs = recentDomains[domain];
+    if (dateIsLessThanADayAgo(domainInsertionDateInMs)) continue;
+    delete recentDomains[domain];
+  }
+  await setRecentDomains(recentDomains);
+};
+
 const checkCurrentUrl = async (_tabId, _changeInfo, tab) => {
   if (tab.status != "complete") return;
   const domain = new URL(tab.url).host;
-  if (domain == lastDomain) return;
+  const recentDomains = await getRecentDomains();
+  if (recentDomains[domain]) return;
   if (!blacklist.includes(domain)) return;
 
-  lastDomain = domain;
-  const counter = await getCounter();
+  const [counter] = await Promise.all([getCounter(), addRecentDomain(domain)]);
   const query = `counter=${counter}&domain=${domain}`;
   chrome.tabs.create({
     url: `${API_URL}/financial-content?${query}`,
@@ -40,5 +71,7 @@ const checkCurrentUrl = async (_tabId, _changeInfo, tab) => {
 })();
 
 chrome.runtime.onStartup.addListener(updateBlacklist);
+
+chrome.runtime.onStartup.addListener(cleanRecentDomains);
 
 chrome.tabs.onUpdated.addListener(checkCurrentUrl);
