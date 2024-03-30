@@ -1,5 +1,6 @@
-const API_URL = "https://pa-xpe-api.netlify.app/api";
+const API_URL = "http://localhost:8000/api";
 let blacklist = [];
+let lastDomain;
 
 const updateBlacklist = async () => {
   const response = await fetch(`${API_URL}/blacklist`);
@@ -22,8 +23,10 @@ const getCounter = async () => {
 const checkCurrentUrl = async (_tabId, _changeInfo, tab) => {
   if (tab.status != "complete") return;
   const domain = new URL(tab.url).host;
+  if (domain == lastDomain) return;
   if (!blacklist.includes(domain)) return;
 
+  lastDomain = domain;
   const counter = await getCounter();
   const query = `counter=${counter}&domain=${domain}`;
   chrome.tabs.create({
