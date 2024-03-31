@@ -13,8 +13,8 @@ const needInterceptUrl = async (tab) => {
 };
 
 const checkCurrentUrl = async (_tabId, _changeInfo, tab) => {
-  const needInterceptUrl = await needInterceptUrl(tab);
-  if (!needInterceptUrl) return;
+  const needIntercept = await needInterceptUrl(tab);
+  if (!needIntercept) return;
 
   const [accessCounter] = await Promise.all([
     nextAccessCounter(),
