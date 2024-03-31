@@ -3,7 +3,8 @@
     "name": "Interceptador de e-commerces - PA XPE",
     "version": "1.0.0",
     "background": {
-        "service_worker": "service-worker.js"
+        "service_worker": "src/main.js",
+        "type": "module"
     },
     "permissions": [
         "storage",
