@@ -3,10 +3,10 @@ import { API_URL, blacklist } from "./blacklist.js";
 import { nextAccessCounter } from "./access-counter.js";
 
 const needInterceptUrl = async (tab) => {
-  if (tab.status != "complete") return [false, undefined];
+  if (tab.status != "complete" || tab.url.startsWith("chrome"))
+    return [false, undefined];
 
   const domain = new URL(tab.url).host;
-  if (domain == "newtab") return [false, domain];
 
   const recentDomains = await getRecentDomains();
   if (recentDomains[domain]) return [false, domain];
