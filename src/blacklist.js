@@ -7,4 +7,4 @@ const updateBlacklist = async () => {
   blacklist = content.domains;
 };
 
-export { blacklist, updateBlacklist };
+export { API_URL, blacklist, updateBlacklist };

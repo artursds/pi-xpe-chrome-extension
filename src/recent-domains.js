@@ -16,8 +16,8 @@ const addRecentDomain = async (domain) => {
 
 const dateIsLessThanADayAgo = (dateInMs) => {
   const oneDayInMs = 24 * 60 * 60 * 1000;
-  const todayInMs = new Date().getTime();
-  return dateInMs < todayInMs && todayInMs - oneDayInMs < dateInMs;
+  const nowInMs = new Date().getTime();
+  return dateInMs < nowInMs && nowInMs - oneDayInMs < dateInMs;
 };
 
 const cleanRecentDomains = async () => {
