@@ -9,8 +9,7 @@ const needInterceptUrl = async (tab) => {
   const recentDomains = await getRecentDomains();
   if (recentDomains[domain]) return false;
 
-  if (!blacklist.includes(domain)) return false;
-  return true;
+  return blacklist.includes(domain);
 };
 
 const checkCurrentUrl = async (_tabId, _changeInfo, tab) => {
