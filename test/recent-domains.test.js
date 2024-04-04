@@ -1,18 +1,19 @@
 import { jest } from "@jest/globals";
-import { getRecentDomains } from "../src/recent-domains.js";
+import { addRecentDomain, getRecentDomains } from "../src/recent-domains.js";
 
 const recentDomainsExample = {
   "www.amazon.com": new Date().getTime(),
   "www.mercadolivre.com.br": new Date().getTime(),
 };
 
-const mockLocalStorageGet = (returnValue) => {
+const mockLocalStorage = (getReturnValue) => {
   global.chrome = {
     storage: {
       local: {
         get: jest
           .fn()
-          .mockImplementationOnce((key) => Promise.resolve(returnValue)),
+          .mockImplementationOnce((key) => Promise.resolve(getReturnValue)),
+        set: jest.fn().mockImplementationOnce((object) => Promise.resolve()),
       },
     },
   };
@@ -20,7 +21,7 @@ const mockLocalStorageGet = (returnValue) => {
 
 describe("get recent domains tests", () => {
   test("should return an existent recentDomains object", async () => {
-    mockLocalStorageGet({
+    mockLocalStorage({
       recentDomains: recentDomainsExample,
     });
     const recentDomains = await getRecentDomains();
@@ -28,20 +29,45 @@ describe("get recent domains tests", () => {
   });
 
   test("should return an empty object when recentDomains is undefined", async () => {
-    mockLocalStorageGet(undefined);
+    mockLocalStorage(undefined);
     const recentDomains = await getRecentDomains();
     expect(recentDomains).toEqual({});
   });
 
   test("should return an empty object when recentDomains is empty object", async () => {
-    mockLocalStorageGet({});
+    mockLocalStorage({});
     const recentDomains = await getRecentDomains();
     expect(recentDomains).toEqual({});
   });
 
   test("should return an empty object when recentDomains is a string", async () => {
-    mockLocalStorageGet("any-string");
+    mockLocalStorage("any-string");
     const recentDomains = await getRecentDomains();
     expect(recentDomains).toEqual({});
+  });
+});
+
+describe("add recent domains tests", () => {
+  test("should set new domain with time", async () => {
+    const domain = "www.kabum.com.br";
+    mockLocalStorage({
+      recentDomains: recentDomainsExample,
+    });
+    jest.spyOn(chrome.storage.local, "set");
+    const timeBefore = new Date().getTime();
+
+    await addRecentDomain(domain);
+    const timeAfter = new Date().getTime();
+
+    const argument = chrome.storage.local.set.mock.calls[0][0];
+    expect(argument).toHaveProperty("recentDomains");
+    expect(argument.recentDomains["www.amazon.com"]).toBe(
+      recentDomainsExample["www.amazon.com"]
+    );
+    expect(argument.recentDomains["www.mercadolivre.com.br"]).toBe(
+      recentDomainsExample["www.mercadolivre.com.br"]
+    );
+    expect(argument.recentDomains[domain]).toBeGreaterThanOrEqual(timeBefore);
+    expect(argument.recentDomains[domain]).toBeLessThanOrEqual(timeAfter);
   });
 });
