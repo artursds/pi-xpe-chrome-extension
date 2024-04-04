@@ -1,0 +1,23 @@
+{
+  "name": "pa-xpe-chrome-extension",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/artursds/pi-xpe-chrome-extension.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/artursds/pi-xpe-chrome-extension/issues"
+  },
+  "homepage": "https://github.com/artursds/pi-xpe-chrome-extension#readme",
+  "type": "module",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
