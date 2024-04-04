@@ -1,7 +1,7 @@
 const getRecentDomains = async () => {
-  let { recentDomains } = await chrome.storage.local.get("recentDomains");
-  if (!recentDomains) recentDomains = {};
-  return recentDomains;
+  const response = await chrome.storage.local.get("recentDomains");
+  if (!response || !response.recentDomains) return {};
+  return response.recentDomains;
 };
 
 const setRecentDomains = async (recentDomains) => {
