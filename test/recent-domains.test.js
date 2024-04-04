@@ -78,7 +78,7 @@ describe("add recent domains tests", () => {
 });
 
 describe("clean recent domains tests", () => {
-  test("should return a object without old domain", async () => {
+  test("should set a object without old domain", async () => {
     mockLocalStorage({ recentDomains: recentDomainsExample });
     jest.spyOn(chrome.storage.local, "set");
 
