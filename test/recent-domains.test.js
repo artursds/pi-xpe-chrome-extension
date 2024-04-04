@@ -1,9 +1,14 @@
 import { jest } from "@jest/globals";
-import { addRecentDomain, getRecentDomains } from "../src/recent-domains.js";
+import {
+  addRecentDomain,
+  cleanRecentDomains,
+  getRecentDomains,
+} from "../src/recent-domains.js";
 
+const oneDayInMs = 24 * 60 * 60 * 1000;
 const recentDomainsExample = {
   "www.amazon.com": new Date().getTime(),
-  "www.mercadolivre.com.br": new Date().getTime(),
+  "www.mercadolivre.com.br": new Date().getTime() - oneDayInMs,
 };
 
 const mockLocalStorage = (getReturnValue) => {
@@ -69,5 +74,21 @@ describe("add recent domains tests", () => {
     );
     expect(argument.recentDomains[domain]).toBeGreaterThanOrEqual(timeBefore);
     expect(argument.recentDomains[domain]).toBeLessThanOrEqual(timeAfter);
+  });
+});
+
+describe("clean recent domains tests", () => {
+  test("should return a object without old domain", async () => {
+    mockLocalStorage({ recentDomains: recentDomainsExample });
+    jest.spyOn(chrome.storage.local, "set");
+
+    await cleanRecentDomains();
+
+    const argument = chrome.storage.local.set.mock.calls[0][0];
+    expect(argument).toHaveProperty("recentDomains");
+    expect(argument.recentDomains["www.amazon.com"]).toBe(
+      recentDomainsExample["www.amazon.com"]
+    );
+    expect(argument.recentDomains["www.mercadolivre.com.br"]).toBeUndefined();
   });
 });
