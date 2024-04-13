@@ -38,3 +38,27 @@ describe("create access counter tests", () => {
     expect(calls).toEqual([]);
   });
 });
+
+describe("next access counter tests", () => {
+  test("should return and save 1 when access counter is undefinded", async () => {
+    mockLocalStorage(undefined);
+    jest.spyOn(chrome.storage.local, "set");
+
+    const accessCounter = await nextAccessCounter();
+
+    expect(accessCounter).toBe(1);
+    const argument = chrome.storage.local.set.mock.calls[0][0];
+    expect(argument).toEqual({ accessCounter: 2 });
+  });
+
+  test("should return access counter and save it incremented by 1", async () => {
+    mockLocalStorage({ accessCounter: 5 });
+    jest.spyOn(chrome.storage.local, "set");
+
+    const accessCounter = await nextAccessCounter();
+
+    expect(accessCounter).toBe(5);
+    const argument = chrome.storage.local.set.mock.calls[0][0];
+    expect(argument).toEqual({ accessCounter: 6 });
+  });
+});
