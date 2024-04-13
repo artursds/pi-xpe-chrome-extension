@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { API_URL, blacklist, updateBlacklist } from "../src/blacklist";
+import { API_URL, blacklist, updateBlacklist } from "../src/blacklist.js";
 
 const blacklistExample = ["www.amazon.com", "www.mercadolivre.com.br"];
 

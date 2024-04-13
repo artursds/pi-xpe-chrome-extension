@@ -1,6 +1,7 @@
 const getAccessCounter = async () => {
-  let { accessCounter } = await chrome.storage.local.get("accessCounter");
-  return accessCounter;
+  const response = await chrome.storage.local.get("accessCounter");
+  if (!response || !response.accessCounter) return false;
+  return response.accessCounter;
 };
 
 const setAccessCounter = async (accessCounter) => {
